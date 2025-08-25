@@ -32,7 +32,7 @@ a=50e3              # emiminor axis
 L=40e3              # gradient scale length at structure edge
 
 ds = np.array([1.1,2,3,4,5,6,7,8,10,12,14,16,20])    # ratio of semimajor to semiminor axis length
-#semimajors = np.array([1,4])
+#ds=np.logspace(np.log10(1.1e0),np.log10(1e2),20)
 
 Eyctr=np.zeros( (ds.size) )
 for i in range(0,ds.size):
@@ -55,8 +55,14 @@ for i in range(0,ds.size):
 
 plt.figure()
 plt.plot(ds*a/L,Eyctr/Eyctr[0])
-plt.xlabel('$c/\ell$')
+plt.xlabel('$b/\ell$')
 plt.ylabel('$|E_y/E_{y,round}|$')
+
+plt.figure()
+plt.loglog(ds*a/L,Eyctr/Eyctr[0])
+plt.xlabel('$b/\ell$')
+plt.ylabel('$|E_y/E_{y,round}|$')
+plt.loglog(ds*a/L,(ds*a/L)**(-2))
 
 ###############################################################################
 ###############################################################################
