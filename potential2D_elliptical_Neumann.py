@@ -30,7 +30,7 @@ Ex0=0.0
 n0=4e11                # density at center of structure
 n1=2e11                # background density
 a=50e3                 # radius of structure along semiminor axis
-d=10.0                 # ratio of semimajor to semiminor axes
+d=1.1                 # ratio of semimajor to semiminor axes
 b=a*d                  # semimajor axis
 c=np.sqrt(b**2-a**2)   # elliptic ecccentricity
 L=50e3                 # gradient scale length at structure edge
@@ -77,8 +77,59 @@ plt.figure()
 plt.plot(x,vxctrline)
 plot_grad_region(vxctrline,x,a,ddist)
 
-# Compute a divergence
+nctrline=n[:,ly//2]
+plt.figure()
+plt.plot(x,nctrline)
+plot_grad_region(nctrline,x,a,ddist)
 
 ###############################################################################
 
 
+###############################################################################
+# Compute terms contributing to variations in density gradient with time
+
+[dndx,dndy]=np.gradient(n,x,y)
+maggradn=np.sqrt(dndx**2+dndy**2)
+
+fluxx=n*vx
+fluxy=n*vy
+[dfluxxdx,_]=np.gradient(fluxx,x,y)
+[_,dfluxydy]=np.gradient(fluxy,x,y)
+divflux=dfluxxdx + dfluxydy
+
+[graddivfluxx,graddivfluxy]=np.gradient(divflux,x,y)
+
+dgradndt=-1/maggradn * (dndx*graddivfluxx + dndy*graddivfluxy)
+
+for i in range(0,lx):
+    for j in range(0,ly):
+        if maggradn[i,j] < 1e4:
+            dgradndt[i,j]=np.nan      # if |gradient| is too small NaN the data
+
+plt.figure()
+plt.pcolormesh(x,y,dgradndt.transpose(),shading='auto')
+plt.colorbar()
+plt.title("$\partial / \partial t ( grad n )$ in observer frame")
+
+
+
+fluxx=n*(vx+Ey0/B)
+fluxy=n*vy
+[dfluxxdx,_]=np.gradient(fluxx,x,y)
+[_,dfluxydy]=np.gradient(fluxy,x,y)
+divflux=dfluxxdx + dfluxydy
+
+[graddivfluxx,graddivfluxy]=np.gradient(divflux,x,y)
+
+dgradndt=-1/maggradn * (dndx*graddivfluxx + dndy*graddivfluxy)
+
+for i in range(0,lx):
+    for j in range(0,ly):
+        if maggradn[i,j] < 1e4:
+            dgradndt[i,j]=np.nan      # if |gradient| is too small NaN the data
+
+plt.figure()
+plt.pcolormesh(x,y,dgradndt.transpose(),shading='auto')
+plt.colorbar()
+plt.title("$\partial / \partial t ( grad n )$ in local plasma frame")
+###############################################################################
