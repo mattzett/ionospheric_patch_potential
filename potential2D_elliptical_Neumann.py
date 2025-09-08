@@ -126,10 +126,11 @@ dgradndt=-1/maggradn * (dndx*graddivfluxx + dndy*graddivfluxy)
 for i in range(0,lx):
     for j in range(0,ly):
         if maggradn[i,j] < 1e4:
-            dgradndt[i,j]=np.nan      # if |gradient| is too small NaN the data
+            dgradndt[i,j]=np.nan      # blank region where |gradient| is too small to be of interest
 
 plt.figure()
 plt.pcolormesh(x,y,dgradndt.transpose(),shading='auto')
 plt.colorbar()
 plt.title("$\partial / \partial t ( grad n )$ in local plasma frame")
+plt.clim((-60000,60000))
 ###############################################################################
