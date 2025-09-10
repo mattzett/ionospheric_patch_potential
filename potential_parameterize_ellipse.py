@@ -74,6 +74,7 @@ def solve_elliptic_neumann(xmax,ymax,lx,ly,a,b,Ex0,Ey0,n0,n1,L):
                 n[i,j]=n0
             elif MU[i,j] >= muref and MU[i,j] < muref+dmu: 
                 n[i,j]=n0*np.exp(-(MU[i,j]-muref)/(L/hmu[i,j]))    # ODE solution for density of fixed scale length
+                #n[i,j]=n0-(n0-n1)*(1/2+1/2*np.tanh((MU[i,j]-muref-dmu/2)/(L/8/hmu[i,j])))
                 gradcells+=hmu[i,j]*dmu/dy
                 numgrad+=1
             else:
