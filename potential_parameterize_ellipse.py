@@ -6,6 +6,7 @@ Created on Fri Aug 22 10:41:07 2025
 @author: zettergm
 """
 
+zerothorder=False
 
 ###############################################################################
 #  Solve for end value of mu region of present interest
@@ -89,51 +90,52 @@ def solve_elliptic_neumann(xmax,ymax,lx,ly,a,b,Ex0,Ey0,nref,nend,L):
     gradcells=0.0
     numgrad=0
     
-    ## Assumes constant hmu, which doesn't work well along semimajor axis...
-    # for i in range(0,lx):
-    #     for j in range (0,ly):
-    #         nuhere=NU[i,j]    # angular position (elliptical coords.) of this point wrt reference ellipse
-    #         # the edge of the reference ellipse is at nuhere,mu=1; 
-            
-    #         # We need to compute a dmu corresponding to the distance ddist in order
-    #         #   to know bounds for applying gradient
-    #         dmu = ddist/hmu[i,j]
-            
-    #         if MU[i,j] < muref:
-    #             n[i,j]=n0
-    #         elif MU[i,j] >= muref and MU[i,j] < muref+dmu: 
-    #             n[i,j]=n0*np.exp(-(MU[i,j]-muref)/(L/hmu[i,j]))    # ODE solution for density of fixed scale length
-    #             #n[i,j]=n0-(n0-n1)*(1/2+1/2*np.tanh((MU[i,j]-muref-dmu/2)/(L/8/hmu[i,j])))
-    #             gradcells+=hmu[i,j]*dmu/dy                         # use semimajor differential as reference
-    #             numgrad+=1
-    #         else:
-    #             n[i,j]=n1          
-
-    for i in range(0,lx):
-        for j in range (0,ly):
-            nu0=NU[i,j]    # angular position (elliptical coords.) of this point wrt reference ellipse
-                              # the edge of the reference ellipse is at nuhere,mu=1; 
-            mu0=MU[i,j]
-            hmu0=hmu[i,j]
-            dhmudmu0 = elliptical_metric_derivative(mu0,nu0,a,b)    # derivative at reference ellipse surface
-            
-            # We need to compute a dmu corresponding to the distance ddist in order
-            #   to know bounds for applying gradient
-            muend = muend_solve(muref,mu0,hmu0,dhmudmu0,ddist)
-            dmu = muend-muref
-            #dmu = ddist/hmu[i,j]
-            print(dmu,ddist/hmu[i,j],muref,muend)
-            
-            if mu0 < muref:
-                n[i,j]=nref
-            elif mu0 >= muref and mu0 < muref+dmu:
-                Hmu0=elliptical_metric_integral(mu0,nu0,a,b,muref)
-                Hmuref=elliptical_metric_integral(muref,nu0,a,b,muref)               
-                n[i,j]=nref*np.exp(-(Hmu0-Hmuref)/L)    # ODE solution for density of fixed scale length
-                gradcells+=hmu[i,j]*dmu/dy                         # use semimajor differential as reference
-                numgrad+=1
-            else:
-                n[i,j]=nend     
+    if (zerothorder):
+        # Assumes constant hmu, which doesn't work well along semimajor axis...
+        for i in range(0,lx):
+            for j in range (0,ly):
+                nuhere=NU[i,j]    # angular position (elliptical coords.) of this point wrt reference ellipse
+                # the edge of the reference ellipse is at nuhere,mu=1; 
+                
+                # We need to compute a dmu corresponding to the distance ddist in order
+                #   to know bounds for applying gradient
+                dmu = ddist/hmu[i,j]
+                
+                if MU[i,j] < muref:
+                    n[i,j]=nref
+                elif MU[i,j] >= muref and MU[i,j] < muref+dmu: 
+                    n[i,j]=nref*np.exp(-(MU[i,j]-muref)/(L/hmu[i,j]))    # ODE solution for density of fixed scale length
+                    #n[i,j]=n0-(n0-n1)*(1/2+1/2*np.tanh((MU[i,j]-muref-dmu/2)/(L/8/hmu[i,j])))
+                    gradcells+=hmu[i,j]*dmu/dy                         # use semimajor differential as reference
+                    numgrad+=1
+                else:
+                    n[i,j]=nend          
+    else:
+        for i in range(0,lx):
+            for j in range (0,ly):
+                nu0=NU[i,j]    # angular position (elliptical coords.) of this point wrt reference ellipse
+                                  # the edge of the reference ellipse is at nuhere,mu=1; 
+                mu0=MU[i,j]
+                hmu0=hmu[i,j]
+                dhmudmu0 = elliptical_metric_derivative(mu0,nu0,a,b)    # derivative at reference ellipse surface
+                
+                # We need to compute a dmu corresponding to the distance ddist in order
+                #   to know bounds for applying gradient
+                muend = muend_solve(muref,mu0,hmu0,dhmudmu0,ddist)
+                dmu = muend-muref
+                #dmu = ddist/hmu[i,j]
+                print(dmu,ddist/hmu[i,j],muref,muend)
+                
+                if mu0 < muref:
+                    n[i,j]=nref
+                elif mu0 >= muref and mu0 < muref+dmu:
+                    Hmu0=elliptical_metric_integral(mu0,nu0,a,b,muref)
+                    Hmuref=elliptical_metric_integral(muref,nu0,a,b,muref)               
+                    n[i,j]=nref*np.exp(-(Hmu0-Hmuref)/L)    # ODE solution for density of fixed scale length
+                    gradcells+=hmu[i,j]*dmu/dy                         # use semimajor differential as reference
+                    numgrad+=1
+                else:
+                    n[i,j]=nend     
 
     if (numgrad>0):
         gradcells/=numgrad
