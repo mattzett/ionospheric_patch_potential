@@ -20,6 +20,7 @@ def plot_grad_region(param,x,rho0,drho):
 
 
 ###############################################################################
+# Main program to simulate one elliptical patch
 import numpy as np
 from potential_parameterize_ellipse import solve_elliptic_neumann, plot_results
 import matplotlib.pyplot as plt
@@ -30,7 +31,7 @@ Ex0=0.0
 n0=4e11                # density at center of structure
 n1=2e11                # background density
 a=50e3                 # radius of structure along semiminor axis
-d=1.1                 # ratio of semimajor to semiminor axes
+d=8.0                  # ratio of semimajor to semiminor axes
 b=a*d                  # semimajor axis
 c=np.sqrt(b**2-a**2)   # elliptic ecccentricity
 L=50e3                 # gradient scale length at structure edge
@@ -38,12 +39,32 @@ L=50e3                 # gradient scale length at structure edge
 edgedist=4*a-a           # tests suggest this boundary is sufficiently far away from structure edge along semimajor axis
 xmax=4*a;                # x extent
 ymax=a*d + edgedist;     # y extent
-lx=256
+lx=128
 ly=256
 
 # Run the solve
 x,y,Phi,Ex,Ey,n,ddist = solve_elliptic_neumann(xmax,ymax,lx,ly,a,b,Ex0,Ey0,n0,n1,L)
 plot_results(x,y,Ex0,Ey0,n,Phi,Ex,Ey,a,b)
+###############################################################################
+
+
+###############################################################################
+# Evaluate gradient scale lengths
+[dndx,dndy]=np.gradient(n,x,y)
+maggradn=np.sqrt(dndx**2+dndy**2)
+for i in range(0,lx):
+    for j in range(0,ly):
+        if maggradn[i,j] < 1e4:
+            maggradn[i,j]=np.nan      # if |gradient| is too small NaN the data
+Lprime=n/maggradn
+            
+plt.figure()
+plt.pcolormesh(x,y,Lprime.transpose())
+plt.title("n/| grad n |")
+plt.clim([10e3, 60e3])
+plt.colorbar()
+ax=plt.gca()
+ax.set_aspect("equal")
 ###############################################################################
 
 
@@ -87,7 +108,6 @@ plot_grad_region(nctrline,x,a,ddist)
 
 ###############################################################################
 # Compute terms contributing to variations in density gradient with time
-
 [dndx,dndy]=np.gradient(n,x,y)
 maggradn=np.sqrt(dndx**2+dndy**2)
 

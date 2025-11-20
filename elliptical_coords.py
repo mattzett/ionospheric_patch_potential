@@ -74,10 +74,31 @@ def cart2elliptical(X,Y,a,b):
 # Compute metric factors at a given location
 def elliptical_metric(mu,nu,a,b):
     c=sqrt(b**2-a**2)
-
     hmu=c*sqrt(sinh(mu)**2+sin(nu)**2)
     hnu=hmu
-
     return hmu,hnu    
 
 
+# Metric factor derivatives d/dmu(hmu) used in various calculations
+def elliptical_metric_derivative(mu,nu,a,b):
+    c=sqrt(b**2-a**2)
+    dhmudmu = c * (sinh(mu)*cosh(mu)) /sqrt( sinh(mu)**2 + sin(nu)**2 )    
+    return dhmudmu
+
+
+# Integrated metric factor using first-order expansion of metric analytically integrated
+def elliptical_metric_integral(mu,nu,a,b,mu0):
+    """
+    In order the arguments are:
+        - mu point at which primitive is evaluated
+        - nu point at which primitive eval.
+        - semiminor axis
+        - semimajor axis
+        - reference point for Taylor expansion of hmu
+    """
+    hmu0,_ = elliptical_metric(mu0,nu,a,b)
+    dhmudmu0 = elliptical_metric_derivative(mu0,nu,a,b)
+    Hmu = mu*(hmu0-dhmudmu0*mu0) + mu**2 * (1/2) * dhmudmu0
+    return Hmu
+    
+    
