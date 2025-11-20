@@ -34,24 +34,16 @@ def muend_solve(muref,mu0,hmu0,dhmudmu0,L):
         return muend1
     else:
         return muend2
-   
+###############################################################################
+    
 
 ###############################################################################
-#  Solver
+#  Establish a denisty x,y dependence that keeps L and the gradient extent/region
+#    relatively constant around the ellipse.  
 ###############################################################################
-def solve_elliptic_neumann(xmax,ymax,lx,ly,a,b,Ex0,Ey0,nref,nend,L):
-    # imports
+def density_ellipse(X,Y,a,b,L,nref,nend):
     import numpy as np
-    import scipy
     from elliptical_coords import cart2elliptical,elliptical_metric,elliptical_metric_derivative,elliptical_metric_integral
-    
-    # create a 2D grid
-    x=np.linspace(-xmax,xmax,lx)
-    y=np.linspace(-ymax,ymax,ly)
-    dx=x[1]-x[0]
-    dy=y[1]-y[0]
-    [X,Y]=np.meshgrid(x,y,indexing='ij')
-    N = lx*ly
 
     # auxiliary parameters of reference ellipse, for convenience    
     c=np.sqrt(b**2-a**2)     # elliptic eccentricity (b>a)
@@ -66,14 +58,6 @@ def solve_elliptic_neumann(xmax,ymax,lx,ly,a,b,Ex0,Ey0,nref,nend,L):
     #rho=np.sqrt(X**2+Y**2)
     #phi=np.arctan2(Y,X)
     
-    # Neumann boundary condition for four sides of square, y sides are dictated
-    #   by inputs Ey0 to this function
-    #f1=np.zeros( (lx) )
-    #f2=np.zeros( (lx) )
-    potmax=-Ey0*(y[-1]-y[0])      # potential at grid edge
-    g1=np.linspace(0,potmax,ly)
-    g2=g1
-    
     # ODE solution for distance from beginning location of gradient where the value
     #   of n1 density is reached.  This solution is only valid along the semiminor
     #   axis (a) but we are attempting to scale this to any location below when we
@@ -85,7 +69,9 @@ def solve_elliptic_neumann(xmax,ymax,lx,ly,a,b,Ex0,Ey0,nref,nend,L):
     # reference value of elliptic coordinate corresponding to our desired ellipse
     muref=np.arcsinh(np.sqrt(a**2/c**2))
     #muref2=np.arccosh(np.sqrt(b**2/c**2))     # should be the same???
-        
+    
+    lx,ly = X.shape
+    dy = Y[0,1]-Y[0,0]
     n = np.empty( (lx,ly) )
     gradcells=0.0
     numgrad=0
@@ -124,14 +110,14 @@ def solve_elliptic_neumann(xmax,ymax,lx,ly,a,b,Ex0,Ey0,nref,nend,L):
                 muend = muend_solve(muref,mu0,hmu0,dhmudmu0,ddist)
                 dmu = muend-muref
                 #dmu = ddist/hmu[i,j]
-                print(dmu,ddist/hmu[i,j],muref,muend)
+                #print(dmu,ddist/hmu[i,j],muref,muend)
                 
                 if mu0 < muref:
                     n[i,j]=nref
                 elif mu0 >= muref and mu0 < muref+dmu:
                     Hmu0=elliptical_metric_integral(mu0,nu0,a,b,muref)
                     Hmuref=elliptical_metric_integral(muref,nu0,a,b,muref)               
-                    n[i,j]=nref*np.exp(-(Hmu0-Hmuref)/L)    # ODE solution for density of fixed scale length
+                    n[i,j]=nref*np.exp(-(Hmu0-Hmuref)/L)               # ODE solution for density of fixed scale length
                     gradcells+=hmu[i,j]*dmu/dy                         # use semimajor differential as reference
                     numgrad+=1
                 else:
@@ -142,10 +128,40 @@ def solve_elliptic_neumann(xmax,ymax,lx,ly,a,b,Ex0,Ey0,nref,nend,L):
         
     # Ballpark the number of cells in the gradient region
     print("Rough width (cells) of transition region:  ",gradcells)
+    return n, ddist
+###############################################################################
+
+
+###############################################################################
+#  Solver
+###############################################################################
+def solve_elliptic_neumann(xmax,ymax,lx,ly,a,b,Ex0,Ey0,nref,nend,L):
+    # imports
+    import numpy as np
+    import scipy
+    
+    # create a 2D grid
+    x=np.linspace(-xmax,xmax,lx)
+    y=np.linspace(-ymax,ymax,ly)
+    dx=x[1]-x[0]
+    dy=y[1]-y[0]
+    [X,Y]=np.meshgrid(x,y,indexing='ij')
+    N = lx*ly
+
+    # Neumann boundary condition for four sides of square, y sides are dictated
+    #   by inputs Ey0 to this function
+    #f1=np.zeros( (lx) )
+    #f2=np.zeros( (lx) )
+    potmax=-Ey0*(y[-1]-y[0])      # potential at grid edge
+    g1=np.linspace(0,potmax,ly)
+    g2=g1
+
+    # Make the elliptical density structure for the patch
+    n,ddist = density_ellipse(X, Y, a, b, L, nref, nend)
     
     # Density gradients
     [dndx,dndy]=np.gradient(n,x,y)
-    
+
     # Right-hand side of Poisson equation, viz. -rho/eps0
     rhs=np.zeros( (N) )
     
