@@ -31,16 +31,18 @@ Ex0=0.0
 n0=4e11                # density at center of structure
 n1=2e11                # background density
 a=50e3                 # radius of structure along semiminor axis
-d=4.0                  # ratio of semimajor to semiminor axes
+d=1.5                  # ratio of semimajor to semiminor axes
 b=a*d                  # semimajor axis
 c=np.sqrt(b**2-a**2)   # elliptic ecccentricity
 L=50e3                 # gradient scale length at structure edge
 
-edgedist=4*a-a           # tests suggest this boundary is sufficiently far away from structure edge along semimajor axis
-xmax=4*a;                # x extent
+#edgedist=4*a-a           # tests suggest this boundary is sufficiently far away from structure edge along semimajor axis
+#xmax=4*a;                # x extent
+edgedist=7*a-a           # tests suggest this boundary is sufficiently far away from structure edge along semimajor axis
+xmax=7*a;                # x extent
 ymax=a*d + edgedist;     # y extent
 lx=128
-ly=512
+ly=130
 
 # Run the solve
 x,y,Phi,Ex,Ey,n,ddist = solve_elliptic_neumann(xmax,ymax,lx,ly,a,b,Ex0,Ey0,n0,n1,L)

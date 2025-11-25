@@ -97,6 +97,10 @@ def density_ellipse(X,Y,a,b,L,nref,nend):
                 else:
                     n[i,j]=nend          
     else:
+        # Make a first-order correction to hmu using a Taylor series about current point.
+        #   This seems to produce some issues for density at large mu values; ostensibly
+        #   the calculation of dmu goes bad???  Just settinga threshold of mu<2.0 for
+        #   applying the 
         for i in range(0,lx):
             for j in range (0,ly):
                 nu0=NU[i,j]    # angular position (elliptical coords.) of this point wrt reference ellipse
@@ -114,7 +118,7 @@ def density_ellipse(X,Y,a,b,L,nref,nend):
                 
                 if mu0 < muref:
                     n[i,j]=nref
-                elif mu0 >= muref and mu0 < muref+dmu:
+                elif mu0 >= muref and mu0 < muref+dmu and mu0<2.0:
                     Hmu0=elliptical_metric_integral(mu0,nu0,a,b,muref)
                     Hmuref=elliptical_metric_integral(muref,nu0,a,b,muref)               
                     n[i,j]=nref*np.exp(-(Hmu0-Hmuref)/L)               # ODE solution for density of fixed scale length

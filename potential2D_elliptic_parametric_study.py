@@ -23,13 +23,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from potential_parameterize_ellipse import solve_elliptic_neumann,plot_results
 
-# Fixed parameters of the solution
+# Fixed parameters of the solution; first order correction only works well for L<=a
 Ey0=-0.05            # background field in which the object is immersed
 Ex0=0.0
 n0=4e11             # density at center of structure
 n1=2e11             # background density
 a=50e3              # emiminor axis
-L=100e3              # gradient scale length at structure edge
+L=50e3              # gradient scale length at structure edge
 
 ds = np.array([1.1,2,3,4,5,6,7,8,10,12,14,16,20])    # ratio of semimajor to semiminor axis length
 #ds=np.logspace(np.log10(1.1e0),np.log10(1e2),20)
