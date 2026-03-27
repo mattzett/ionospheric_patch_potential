@@ -18,8 +18,8 @@ rhomin=ell
 rhomax=2*ell
 rho=np.linspace(rhomin,rhomax,mrho)
 
-plt.subplots(1,2,dpi=150)
-for m in range(1,2):
+plt.subplots(2,2,dpi=150)
+for m in range(1,10):
     #### Scaled parameters
     m2=m**2
     a=1/ell
@@ -35,16 +35,26 @@ for m in range(1,2):
     R1=rho**m*M
     R2=rho**m*U
         
-    plt.subplot(1,2,1)
-    plt.plot(rho,M)
-    plt.plot(rho,U)
-    plt.legend(("$M=_1F_1$","$U$"))
-    plt.title("Confluent Hypergeometric Functions")
-    #plt.xlabel("$\rho$")
+    plt.subplot(2,2,1)
+    plt.plot(z,M/M.max())
+    #plt.legend(("$M=_1F_1$"))
+    plt.title("Confluent Hypergeometric ($M=_1F_1$)")
+    plt.xlabel("$z$")
     
-    plt.subplot(1,2,2)
+    plt.subplot(2,2,2)
+    plt.plot(z,U/U.max())
+    #plt.legend(("$ U $"))
+    plt.title("Confluent Hypergeometric ($U$)")
+    plt.xlabel("$z$")
+    
+    plt.subplot(2,2,3)
     plt.plot(rho,R1/R1.max())
+    #plt.legend(("$R_1$"))
+    plt.title("Radial Solution Functions ($R_1$)")
+    #plt.xlabel("$\rho$")
+
+    plt.subplot(2,2,4)    
     plt.plot(rho,R2/R2.max())
-    plt.legend(("$R_1$","$R_2$"))
-    plt.title("Radial Solution Functions")
+    #plt.legend(("$R_2$"))
+    plt.title("Radial Solution Functions ($R_2$)")
     #plt.xlabel("$\rho$")
