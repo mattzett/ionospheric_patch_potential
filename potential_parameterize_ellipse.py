@@ -132,6 +132,7 @@ def density_ellipse(X,Y,a,b,L,nref,nend):
         
     # Ballpark the number of cells in the gradient region
     print("Rough width (cells) of transition region:  ",gradcells)
+    print("Rough width (meters) of transition region:  ",gradcells*dy)    
     return n, ddist
 ###############################################################################
 

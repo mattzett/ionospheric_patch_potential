@@ -93,17 +93,26 @@ plt.title('$v_y$')
 Eyctrline=(Ey[:,ly//2]-Ey0)
 plt.figure()
 plt.plot(x,Eyctrline)
+plt.title("$E_y$")
 plot_grad_region(Eyctrline,x,a,ddist)
 
 vxctrline=vx[:,ly//2]
 plt.figure()
 plt.plot(x,vxctrline)
+plt.title("$v_x$")
 plot_grad_region(vxctrline,x,a,ddist)
 
 nctrline=n[:,ly//2]
 plt.figure()
 plt.plot(x,nctrline)
+plt.title("$n_e$")
 plot_grad_region(nctrline,x,a,ddist)
+
+Phictrline=Phi[:,ly//2]
+plt.figure()
+plt.plot(x,Phictrline)
+plt.title("$\Phi$")
+plot_grad_region(Phictrline,x,a,ddist)
 
 ###############################################################################
 
